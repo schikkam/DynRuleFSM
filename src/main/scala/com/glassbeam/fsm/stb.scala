@@ -11,30 +11,28 @@ import scala.collection.immutable.HashMap
  */
 
 
+sealed trait State
+case object Idle extends State
+case object InitRule extends State
+sealed trait Data
+case object Uninitialized extends Data
+case object Initialize extends Data
+case object Start extends Data
+case object EvaluateRule extends State
+case class RowMap(m: HashMap[String, String]) extends Data
+
 object RuleTemplate{
 
     val actorName = "A"
 
-    val msgs = """
-    sealed trait State
-    case object Idle extends State
-    case object InitRule extends State
-    sealed trait Data
-    case object Uninitialized extends Data
-    case object Initialize extends Data
-    case object Start extends Data
-    case object EvaluateRule extends State
-    case class RowMap(m: HashMap[String, String]) extends Data
-  """
   val ruleTemplate = s"""
     import scala.collection.mutable.ListBuffer
     import akka.actor.Actor
     import akka.actor.Props
     import akka.actor.FSM
     import scala.collection.immutable.HashMap
-
-    ${msgs}
-
+    import com.glassbeam.fsm._
+   
     class ${actorName} extends Actor with FSM[State, Data] {
 
     import context._
@@ -86,17 +84,6 @@ object Main extends App {
   val tb = scala.reflect.runtime.universe.runtimeMirror(getClass.getClassLoader).mkToolBox()
 
   val actorName = "A"
-
-  sealed trait State
-  case object Idle extends State
-  case object InitRule extends State
-
-  sealed trait Data
-  case object Uninitialized extends Data
-  case object Initialize extends Data
-  case object Start extends Data
-  case object EvaluateRule extends State
-  case class RowMap(m: HashMap[String, String]) extends Data
 
   import RuleTemplate._
   // printing the generated code for the RuleActor 
